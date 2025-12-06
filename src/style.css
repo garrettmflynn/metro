@@ -369,12 +369,15 @@ body {
 /* Station arrival badges */
 .station-arrival {
   position: absolute;
+  display: flex;
+  gap: 3px;
 }
 
 .app-container.vertical .station-arrival {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
+  flex-direction: row;
 }
 
 .app-container.horizontal .station-arrival {
@@ -382,6 +385,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   margin-bottom: 3px;
+  flex-direction: row;
 }
 
 .arrival-badge {

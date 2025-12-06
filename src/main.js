@@ -121,7 +121,6 @@ function renderApp() {
     <div class="app-container ${isVertical ? 'vertical' : 'horizontal'}">
       <div class="minimap" id="minimap">
         <div class="minimap-track"></div>
-        <div class="minimap-route-highlight" id="minimap-route-highlight"></div>
         <div class="minimap-stations" id="minimap-stations"></div>
         <div class="minimap-trains" id="minimap-trains"></div>
         <div class="offscreen-indicator above" id="trains-above" style="display: none;"></div>
@@ -149,9 +148,8 @@ function renderApp() {
     </div>
   `
 
-  // Render initial minimap stations and route highlight
+  // Render initial minimap stations
   renderMinimapStations()
-  renderRouteHighlight()
 
   // Add route selector handler
   document.getElementById('route-select').addEventListener('change', (e) => {
@@ -225,8 +223,11 @@ function renderMinimapStations() {
       arrivalHtml = `<div class="station-arrival" id="arrival-eastbound"></div>`
     }
 
+    // Check if this is a station of interest
+    const isStationOfInterest = station.id === config.westbound.id || station.id === config.eastbound.id
+
     return `
-      <div class="minimap-station ${station.highlight ? 'highlight' : ''}"
+      <div class="minimap-station ${isStationOfInterest ? 'highlight' : ''}"
            style="${positionProp}: ${position}%"
            title="${station.name}">
         <div class="station-dot"></div>
@@ -248,10 +249,10 @@ function updateMinimapArrivals() {
 
   if (westEl) {
     if (westboundArrivals.length > 0) {
-      const times = westboundArrivals.slice(0, 2).map(a =>
-        a.estimatedMinutes === 0 ? 'Now' : `${a.estimatedMinutes}m`
+      const badges = westboundArrivals.slice(0, 2).map(a =>
+        `<span class="arrival-badge westbound">${a.estimatedMinutes === 0 ? 'Now' : `${a.estimatedMinutes}m`}</span>`
       )
-      westEl.innerHTML = `<span class="arrival-badge westbound">${times.join(', ')}</span>`
+      westEl.innerHTML = badges.join('')
     } else {
       westEl.innerHTML = ''
     }
@@ -259,10 +260,10 @@ function updateMinimapArrivals() {
 
   if (eastEl) {
     if (eastboundArrivals.length > 0) {
-      const times = eastboundArrivals.slice(0, 2).map(a =>
-        a.estimatedMinutes === 0 ? 'Now' : `${a.estimatedMinutes}m`
+      const badges = eastboundArrivals.slice(0, 2).map(a =>
+        `<span class="arrival-badge eastbound">${a.estimatedMinutes === 0 ? 'Now' : `${a.estimatedMinutes}m`}</span>`
       )
-      eastEl.innerHTML = `<span class="arrival-badge eastbound">${times.join(', ')}</span>`
+      eastEl.innerHTML = badges.join('')
     } else {
       eastEl.innerHTML = ''
     }
@@ -682,7 +683,6 @@ function onRouteChanged() {
   trainPositions.clear()
   // Re-render the app with new route
   renderMinimapStations()
-  renderRouteHighlight()
   updateTrainTargets()
   updateMinimapArrivals()
 }
