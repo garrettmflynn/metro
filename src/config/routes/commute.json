@@ -1,0 +1,12 @@
+{
+  "displayName": "Office Commute",
+  "westboundStation": {
+    "id": "80125",
+    "name": "USC"
+  },
+  "eastboundStation": {
+    "id": "80133",
+    "name": "Palms"
+  },
+  "stopsPadding": 3
+}

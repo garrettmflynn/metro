@@ -1,0 +1,665 @@
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: transparent;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#app {
+  position: fixed;
+  top: 50px;
+  right: 1rem;
+  z-index: 9999;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* App container */
+.app-container {
+  --minimap-track-length: 400px;
+  --minimap-track-width: 220px;
+
+  background: rgba(22, 33, 62, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 0.5rem;
+  border: 1px solid rgba(15, 52, 96, 0.6);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.app-container.vertical {
+  grid-template-columns: var(--minimap-track-width) auto;
+  grid-template-rows: 1fr;
+}
+
+.app-container.horizontal {
+  --minimap-track-length: 70px;
+  --minimap-track-width: 100%;
+
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  width: min(600px, 90vw);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.app-container.horizontal .sidebar {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.app-container.horizontal .sidebar-controls {
+  flex-direction: row;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.last-update {
+  font-size: 0.5rem;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+/* Connection status */
+.connection-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.connection-status.connected {
+  color: #4CAF50;
+}
+
+.connection-status.disconnected {
+  color: #f44336;
+}
+
+.connection-status.connecting {
+  color: #FFC107;
+}
+
+.connection-status.connecting .status-dot {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Flash animation for data received */
+.status-dot.flash {
+  animation: data-flash 0.3s ease-out;
+}
+
+@keyframes data-flash {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+  50% { transform: scale(1.5); box-shadow: 0 0 8px 2px currentColor; }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+}
+
+/* Route selector */
+.route-select {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ccc;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 0 4px;
+  text-transform: capitalize;
+  max-width: 70px;
+}
+
+.route-select:focus {
+  outline: none;
+  border-color: #FDB913;
+}
+
+.route-select option {
+  background: #1a1a2e;
+  color: #ccc;
+  text-transform: capitalize;
+}
+
+/* Icon buttons */
+.icon-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ccc;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FDB913;
+}
+
+/* Minimap */
+.minimap {
+  --minimap-inset: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: var(--minimap-inset) 1fr var(--minimap-inset);
+  height: var(--minimap-track-length);
+  width: var(--minimap-track-width);
+  position: relative;
+}
+
+.app-container.horizontal .minimap {
+  --minimap-inset: 40px;
+  grid-template-columns: var(--minimap-inset) 1fr var(--minimap-inset);
+  grid-template-rows: 1fr;
+}
+
+/* Offscreen train indicators */
+.offscreen-indicator {
+  font-size: 0.5rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  align-self: center;
+  justify-self: center;
+}
+
+.offscreen-indicator.above {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.offscreen-indicator.below {
+  grid-row: 3;
+  grid-column: 1;
+}
+
+.app-container.horizontal .offscreen-indicator.above {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.app-container.horizontal .offscreen-indicator.below {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+/* Track */
+.minimap-track {
+  position: absolute;
+  left: 50%;
+  top: var(--minimap-inset);
+  bottom: var(--minimap-inset);
+  width: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+.app-container.horizontal .minimap-track {
+  top: 50%;
+  left: var(--minimap-inset);
+  right: var(--minimap-inset);
+  bottom: auto;
+  width: auto;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+/* Route highlight */
+.minimap-route-highlight {
+  position: absolute;
+  left: 50%;
+  top: var(--minimap-inset);
+  bottom: var(--minimap-inset);
+  width: 50px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.route-highlight-bar {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: rgba(253, 185, 19, 0.08);
+  border: 1px dashed rgba(253, 185, 19, 0.4);
+  border-radius: 6px;
+}
+
+.app-container.horizontal .minimap-route-highlight {
+  top: 50%;
+  left: var(--minimap-inset);
+  right: var(--minimap-inset);
+  bottom: auto;
+  width: auto;
+  height: 36px;
+  transform: translateY(-50%);
+}
+
+.app-container.horizontal .route-highlight-bar {
+  top: 0;
+  height: 100%;
+  width: auto;
+}
+
+/* Stations */
+.minimap-stations {
+  position: absolute;
+  top: var(--minimap-inset);
+  left: 0;
+  right: 0;
+  bottom: var(--minimap-inset);
+}
+
+.app-container.horizontal .minimap-stations {
+  top: 0;
+  left: var(--minimap-inset);
+  right: var(--minimap-inset);
+  bottom: 0;
+}
+
+.minimap-station {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+}
+
+.minimap-station .station-dot {
+  width: 5px;
+  height: 5px;
+  background: #555;
+  border: 1px solid #888;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.minimap-station .station-label {
+  position: absolute;
+  left: 12px;
+  font-size: 0.5rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.minimap-station.highlight .station-dot {
+  width: 6px;
+  height: 6px;
+  background: #777;
+  border: 1px solid #aaa;
+}
+
+.minimap-station.highlight .station-label {
+  color: #ccc;
+  font-weight: 500;
+}
+
+/* Horizontal station adjustments */
+.app-container.horizontal .minimap-station {
+  top: 50%;
+  left: auto;
+  transform: translate(-50%, -50%);
+}
+
+.app-container.horizontal .minimap-station .station-label {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-45deg);
+  transform-origin: top center;
+}
+
+/* Station arrival badges */
+.station-arrival {
+  position: absolute;
+}
+
+.app-container.vertical .station-arrival {
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.app-container.horizontal .station-arrival {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 3px;
+}
+
+.arrival-badge {
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.arrival-badge.westbound {
+  background: rgba(25, 118, 210, 0.25);
+  color: #64b5f6;
+}
+
+.arrival-badge.eastbound {
+  background: rgba(233, 30, 99, 0.25);
+  color: #f48fb1;
+}
+
+/* Trains */
+.minimap-trains {
+  position: absolute;
+  top: var(--minimap-inset);
+  left: 0;
+  right: 0;
+  bottom: var(--minimap-inset);
+  pointer-events: none;
+}
+
+.app-container.horizontal .minimap-trains {
+  top: 0;
+  left: var(--minimap-inset);
+  right: var(--minimap-inset);
+  bottom: 0;
+}
+
+.minimap-train {
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+.minimap-train.moving {
+  width: 0;
+  height: 0;
+}
+
+/* Vertical: arrows up/down */
+.minimap-train.westbound.moving {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 8px solid #1976D2;
+  filter: drop-shadow(0 0 3px rgba(25, 118, 210, 0.7));
+}
+
+.minimap-train.eastbound.moving {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 8px solid #E91E63;
+  filter: drop-shadow(0 0 3px rgba(233, 30, 99, 0.7));
+}
+
+/* Stopped trains - circles */
+.minimap-train.stopped {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: train-pulse 1s infinite;
+}
+
+.minimap-train.westbound.stopped {
+  background: #1976D2;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+}
+
+.minimap-train.eastbound.stopped {
+  background: #E91E63;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+}
+
+@keyframes train-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Horizontal: arrows left/right */
+.app-container.horizontal .minimap-train {
+  top: 50% !important;
+}
+
+.app-container.horizontal .minimap-train.westbound.moving {
+  transform: translate(-50%, -50%);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 8px solid #1976D2;
+  border-left: none;
+}
+
+.app-container.horizontal .minimap-train.eastbound.moving {
+  transform: translate(-50%, -50%);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 8px solid #E91E63;
+  border-right: none;
+}
+
+/* Responsive */
+@media (max-width: 320px) {
+  #app {
+    max-width: 100%;
+  }
+
+  .app-container.vertical {
+    --minimap-track-length: 350px;
+  }
+}
+
+/* Light mode - system preference */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color: #213547;
+  }
+
+  :root:not([data-theme="dark"]) .app-container {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(200, 200, 200, 0.6);
+  }
+
+  :root:not([data-theme="dark"]) .minimap-station .station-dot {
+    background: #ccc;
+    border-color: #999;
+  }
+
+  :root:not([data-theme="dark"]) .route-select {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #444;
+  }
+
+  :root:not([data-theme="dark"]) .route-select option {
+    background: #fff;
+    color: #333;
+  }
+
+  :root:not([data-theme="dark"]) .icon-btn {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #444;
+  }
+
+  :root:not([data-theme="dark"]) .icon-btn:hover {
+    background: rgba(0, 0, 0, 0.12);
+    color: #d4960f;
+  }
+
+  :root:not([data-theme="dark"]) .last-update {
+    color: #555;
+  }
+
+  :root:not([data-theme="dark"]) .minimap-track {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  :root:not([data-theme="dark"]) .offscreen-indicator {
+    background: rgba(0, 0, 0, 0.1);
+    color: #666;
+  }
+
+  :root:not([data-theme="dark"]) .route-highlight-bar {
+    background: rgba(253, 185, 19, 0.15);
+    border-color: rgba(253, 185, 19, 0.5);
+  }
+
+  :root:not([data-theme="dark"]) .arrival-badge.westbound {
+    background: rgba(25, 118, 210, 0.2);
+    color: #1565c0;
+  }
+
+  :root:not([data-theme="dark"]) .arrival-badge.eastbound {
+    background: rgba(233, 30, 99, 0.2);
+    color: #c2185b;
+  }
+
+  :root:not([data-theme="dark"]) .minimap-station .station-label {
+    color: #666;
+  }
+
+  :root:not([data-theme="dark"]) .minimap-station.highlight .station-label {
+    color: #333;
+  }
+}
+
+/* Forced light mode */
+:root[data-theme="light"] {
+  color: #213547;
+}
+
+:root[data-theme="light"] .app-container {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(200, 200, 200, 0.6);
+}
+
+:root[data-theme="light"] .minimap-station .station-dot {
+  background: #ccc;
+  border-color: #999;
+}
+
+:root[data-theme="light"] .route-select {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #444;
+}
+
+:root[data-theme="light"] .route-select option {
+  background: #fff;
+  color: #333;
+}
+
+:root[data-theme="light"] .icon-btn {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #444;
+}
+
+:root[data-theme="light"] .icon-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #d4960f;
+}
+
+:root[data-theme="light"] .last-update {
+  color: #555;
+}
+
+:root[data-theme="light"] .minimap-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="light"] .offscreen-indicator {
+  background: rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+:root[data-theme="light"] .route-highlight-bar {
+  background: rgba(253, 185, 19, 0.15);
+  border-color: rgba(253, 185, 19, 0.5);
+}
+
+:root[data-theme="light"] .arrival-badge.westbound {
+  background: rgba(25, 118, 210, 0.2);
+  color: #1565c0;
+}
+
+:root[data-theme="light"] .arrival-badge.eastbound {
+  background: rgba(233, 30, 99, 0.2);
+  color: #c2185b;
+}
+
+:root[data-theme="light"] .minimap-station .station-label {
+  color: #666;
+}
+
+:root[data-theme="light"] .minimap-station.highlight .station-label {
+  color: #333;
+}
+
+/* Forced dark mode */
+:root[data-theme="dark"] {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+:root[data-theme="dark"] .app-container {
+  background: rgba(22, 33, 62, 0.85);
+  border-color: rgba(15, 52, 96, 0.6);
+}

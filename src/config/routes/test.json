@@ -1,0 +1,6 @@
+{
+  "displayName": "Andrew Commute",
+  "westboundStation": { "id": "80132", "name": "Culver City" },
+  "eastboundStation": { "id": "80133", "name": "Palms" },
+  "stopsPadding": 3
+}
