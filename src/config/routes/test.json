@@ -1,6 +1,5 @@
 {
   "displayName": "Andrew Commute",
-  "westboundStation": { "id": "80132", "name": "Culver City" },
-  "eastboundStation": { "id": "80133", "name": "Palms" },
-  "stopsPadding": 3
+  "stations": { "west": "80133", "east": "80132" },
+  "view": { "padding": 3 }
 }

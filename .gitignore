@@ -2,6 +2,8 @@
 .claude
 *-lock.json
 
+ios
+
 # Logs
 logs
 *.log

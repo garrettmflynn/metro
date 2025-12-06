@@ -21,10 +21,6 @@ body {
 }
 
 #app {
-  position: fixed;
-  top: 50px;
-  right: 1rem;
-  z-index: 9999;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -186,18 +182,16 @@ body {
 
 /* Minimap */
 .minimap {
-  --minimap-inset: 20px;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: var(--minimap-inset) 1fr var(--minimap-inset);
+  grid-template-rows: 20px 1fr 20px;
   height: var(--minimap-track-length);
   width: var(--minimap-track-width);
   position: relative;
 }
 
 .app-container.horizontal .minimap {
-  --minimap-inset: 40px;
-  grid-template-columns: var(--minimap-inset) 1fr var(--minimap-inset);
+  grid-template-columns: 40px 1fr 40px;
   grid-template-rows: 1fr;
 }
 
@@ -208,13 +202,31 @@ body {
   padding: 2px 6px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.15);
-  color: #aaa;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   z-index: 5;
   align-self: center;
   justify-self: center;
+}
+
+.app-container.horizontal .offscreen-indicator {
+  flex-direction: column;
+  padding: 4px 2px;
+}
+
+.indicator-stops {
+  color: #888;
+}
+
+.indicator-westbound {
+  color: #64b5f6;
+}
+
+.indicator-eastbound {
+  color: #f48fb1;
 }
 
 .offscreen-indicator.above {
@@ -229,44 +241,40 @@ body {
 
 .app-container.horizontal .offscreen-indicator.above {
   grid-row: 1;
-  grid-column: 3;
+  grid-column: 1;
 }
 
 .app-container.horizontal .offscreen-indicator.below {
   grid-row: 1;
-  grid-column: 1;
+  grid-column: 3;
 }
 
 /* Track */
 .minimap-track {
-  position: absolute;
-  left: 50%;
-  top: var(--minimap-inset);
-  bottom: var(--minimap-inset);
+  grid-row: 2;
+  grid-column: 1;
   width: 2px;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 1px;
-  transform: translateX(-50%);
+  justify-self: center;
 }
 
 .app-container.horizontal .minimap-track {
-  top: 50%;
-  left: var(--minimap-inset);
-  right: var(--minimap-inset);
-  bottom: auto;
+  grid-row: 1;
+  grid-column: 2;
   width: auto;
   height: 2px;
-  transform: translateY(-50%);
+  align-self: center;
+  justify-self: stretch;
 }
 
 /* Route highlight */
 .minimap-route-highlight {
-  position: absolute;
-  left: 50%;
-  top: var(--minimap-inset);
-  bottom: var(--minimap-inset);
+  grid-row: 2;
+  grid-column: 1;
+  position: relative;
   width: 50px;
-  transform: translateX(-50%);
+  justify-self: center;
   pointer-events: none;
 }
 
@@ -280,13 +288,12 @@ body {
 }
 
 .app-container.horizontal .minimap-route-highlight {
-  top: 50%;
-  left: var(--minimap-inset);
-  right: var(--minimap-inset);
-  bottom: auto;
+  grid-row: 1;
+  grid-column: 2;
   width: auto;
   height: 36px;
-  transform: translateY(-50%);
+  align-self: center;
+  justify-self: stretch;
 }
 
 .app-container.horizontal .route-highlight-bar {
@@ -297,18 +304,14 @@ body {
 
 /* Stations */
 .minimap-stations {
-  position: absolute;
-  top: var(--minimap-inset);
-  left: 0;
-  right: 0;
-  bottom: var(--minimap-inset);
+  grid-row: 2;
+  grid-column: 1;
+  position: relative;
 }
 
 .app-container.horizontal .minimap-stations {
-  top: 0;
-  left: var(--minimap-inset);
-  right: var(--minimap-inset);
-  bottom: 0;
+  grid-row: 1;
+  grid-column: 2;
 }
 
 .minimap-station {
@@ -402,19 +405,15 @@ body {
 
 /* Trains */
 .minimap-trains {
-  position: absolute;
-  top: var(--minimap-inset);
-  left: 0;
-  right: 0;
-  bottom: var(--minimap-inset);
+  grid-row: 2;
+  grid-column: 1;
+  position: relative;
   pointer-events: none;
 }
 
 .app-container.horizontal .minimap-trains {
-  top: 0;
-  left: var(--minimap-inset);
-  right: var(--minimap-inset);
-  bottom: 0;
+  grid-row: 1;
+  grid-column: 2;
 }
 
 .minimap-train {
@@ -554,7 +553,18 @@ body {
 
   :root:not([data-theme="dark"]) .offscreen-indicator {
     background: rgba(0, 0, 0, 0.1);
-    color: #666;
+  }
+
+  :root:not([data-theme="dark"]) .indicator-stops {
+    color: #888;
+  }
+
+  :root:not([data-theme="dark"]) .indicator-westbound {
+    color: #1976D2;
+  }
+
+  :root:not([data-theme="dark"]) .indicator-eastbound {
+    color: #E91E63;
   }
 
   :root:not([data-theme="dark"]) .route-highlight-bar {
@@ -628,7 +638,18 @@ body {
 
 :root[data-theme="light"] .offscreen-indicator {
   background: rgba(0, 0, 0, 0.1);
-  color: #666;
+}
+
+:root[data-theme="light"] .indicator-stops {
+  color: #888;
+}
+
+:root[data-theme="light"] .indicator-westbound {
+  color: #1976D2;
+}
+
+:root[data-theme="light"] .indicator-eastbound {
+  color: #E91E63;
 }
 
 :root[data-theme="light"] .route-highlight-bar {
@@ -663,3 +684,4 @@ body {
   background: rgba(22, 33, 62, 0.85);
   border-color: rgba(15, 52, 96, 0.6);
 }
+

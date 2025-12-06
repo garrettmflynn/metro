@@ -1,0 +1,31 @@
+/* Web: Centered with max bounds */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+#app {
+  position: relative;
+  max-width: 800px;
+  width: 100%;
+  padding: 1rem;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.app-container.vertical {
+  --minimap-track-length: min(500px, 70vh);
+  --minimap-track-width: 100%;
+  grid-template-columns: 1fr auto;
+}
+
+.app-container.horizontal {
+  --minimap-track-length: 100px;
+  width: 100%;
+}

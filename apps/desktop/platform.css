@@ -1,0 +1,7 @@
+/* Desktop: Overlay mode (positioned in corner) */
+#app {
+  position: fixed;
+  top: 50px;
+  right: 1rem;
+  z-index: 9999;
+}

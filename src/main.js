@@ -1,11 +1,11 @@
-import './style.css'
 import {
   E_LINE_STOPS,
   getDerivedConfig,
   getVisibleStations,
   AVAILABLE_ROUTES,
   getCurrentRouteName,
-  setCurrentRoute
+  setCurrentRoute,
+  ALL_STATIONS
 } from './config/index.js'
 
 // Overlay integration for desktop app
@@ -186,15 +186,23 @@ function toggleOrientation() {
 }
 
 
-// Calculate position on minimap (within the visible range)
-// Vertical orientation: 0% = top (higher seq), 100% = bottom (lower seq)
+// Calculate position on minimap using linear track distance
+// Vertical: 0% = top (Santa Monica/high distance), 100% = bottom (East LA/low distance)
+// Horizontal: 0% = left (Santa Monica/high distance), 100% = right (East LA/low distance)
 function getMinimapPosition(seq) {
   const config = getDerivedConfig()
-  // Clamp to visible range
-  const clampedSeq = Math.max(config.startSeq, Math.min(config.endSeq, seq))
-  // Normalize to 0-100 within the range
-  const normalized = (clampedSeq - config.startSeq) / (config.endSeq - config.startSeq)
-  return 100 - (normalized * 100) // Flip so higher seq is at top
+  // Find the station's distance by sequence number
+  const station = ALL_STATIONS.find(s => s.seq === seq)
+  if (!station) return 50 // Fallback to center
+
+  // Clamp distance to visible range
+  const clampedDistance = Math.max(config.startDistance, Math.min(config.endDistance, station.distance))
+  // Normalize to 0-100 based on distance within the range
+  const distanceRange = config.endDistance - config.startDistance
+  if (distanceRange === 0) return 50
+  const normalized = (clampedDistance - config.startDistance) / distanceRange
+  // Flip so higher distance (Santa Monica) is at top/left (0%), lower distance (East LA) at bottom/right (100%)
+  return 100 - (normalized * 100)
 }
 
 // Render minimap station markers
@@ -409,12 +417,12 @@ function buildIndicatorHtml(stops, trains) {
 
   // Westbound trains in blue
   if (trains.westbound > 0) {
-    parts.push(`<span class="indicator-westbound">${trains.westbound}</span>`)
+    parts.push(`<span class="indicator-westbound">+${trains.westbound}</span>`)
   }
 
   // Eastbound trains in pink
   if (trains.eastbound > 0) {
-    parts.push(`<span class="indicator-eastbound">${trains.eastbound}</span>`)
+    parts.push(`<span class="indicator-eastbound">+${trains.eastbound}</span>`)
   }
 
   return parts.join('')

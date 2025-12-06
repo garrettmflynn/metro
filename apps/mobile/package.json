@@ -1,0 +1,14 @@
+{
+  "name": "metro-tracker-mobile",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^7.4.4"
+  },
+  "dependencies": {
+    "@capacitor/ios": "^7.4.4"
+  }
+}
